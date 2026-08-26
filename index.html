@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>오늘의 어휘성장</title>
+
+  <meta
+    name="theme-color"
+    content="#4c7f63"
+  >
+
+  <meta
+    name="application-name"
+    content="오늘의 어휘성장"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="192x192"
+    href="icon-192.png"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="icon-192.png"
+  >
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Noto Sans KR",
+        Arial,
+        sans-serif;
+
+      background: #f5faf6;
+      color: #25342c;
+    }
+
+    .wrap {
+      min-height: 100vh;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 430px;
+
+      padding: 34px 26px;
+
+      border-radius: 26px;
+
+      background: #ffffff;
+
+      text-align: center;
+
+      box-shadow:
+        0 10px 35px
+        rgba(34, 65, 48, 0.10);
+    }
+
+    .icon {
+      width: 132px;
+      height: 132px;
+
+      margin-bottom: 20px;
+
+      border-radius: 30px;
+
+      object-fit: cover;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .message {
+      margin: 0 0 30px;
+
+      color: #6a7971;
+
+      font-size: 17px;
+      line-height: 1.8;
+    }
+
+    .start-button {
+      display: block;
+
+      width: 100%;
+
+      padding: 17px 20px;
+
+      border-radius: 16px;
+
+      background: #4c7f63;
+      color: #ffffff;
+
+      text-decoration: none;
+
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .small {
+      margin-top: 18px;
+
+      color: #9aa59f;
+
+      font-size: 12px;
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+  <main class="wrap">
+
+    <div class="card">
+
+      <img
+        src="icon-512.png"
+        alt="오늘의 어휘성장"
+        class="icon"
+      >
+
+      <h1>
+        오늘의 어휘성장
+      </h1>
+
+      <p class="message">
+        오늘도 새로운 낱말을 만나고<br>
+        이야기 속에서 뜻을 찾아볼까요?
+      </p>
+
+      <a
+        class="start-button"
+        href="https://script.google.com/macros/s/AKfycbwV4WTSh0cGwUc9DYSajDK7YKlJBVI08UhWV95ZJaNaB_72TVdXxgbXTbjPV120oeUz/exec"
+      >
+        오늘 학습 시작하기
+      </a>
+
+      <div class="small">
+        하루 약 30분 · 어휘 5개
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    /*
+     * service worker 등록
+     */
+    if ('serviceWorker' in navigator) {
+
+      window.addEventListener(
+        'load',
+        function() {
+
+          navigator.serviceWorker
+            .register('./sw.js');
+
+        }
+      );
+
+    }
+
+  </script>
+
+</body>
+</html>
