@@ -181,6 +181,35 @@
         오늘 학습 시작하기
       </a>
 
+      <button
+        id="apiTestBtn"
+        style="
+          margin-top:16px;
+          width:100%;
+          padding:14px;
+          border:none;
+          border-radius:14px;
+          background:#dfeee5;
+          color:#345c47;
+          font-size:16px;
+          font-weight:800;
+        "
+      >
+        API 연결 테스트
+      </button>
+
+      <div
+        id="apiTestResult"
+        style="
+          margin-top:12px;
+          font-size:14px;
+          color:#65756c;
+          line-height:1.6;
+        "
+      ></div>
+
+
+      
       <div class="small">
         하루 약 30분 · 어휘 5개
       </div>
@@ -209,6 +238,46 @@
 
     }
 
+    document
+      .getElementById('apiTestBtn')
+      .addEventListener(
+        'click',
+        async function() {
+
+          const resultBox =
+            document.getElementById(
+              'apiTestResult'
+            );
+
+          resultBox.textContent =
+            '연결을 확인하고 있어요...';
+
+          try {
+
+            const response =
+              await fetch(
+                'https://script.google.com/macros/s/AKfycbwV4WTSh0cGwUc9DYSajDK7YKlJBVI08UhWV95ZJaNaB_72TVdXxgbXTbjPV120oeUz/exec?api=ping'
+              );
+
+            const data =
+              await response.json();
+
+            resultBox.textContent =
+              data.message;
+
+          }
+
+          catch (error) {
+
+            resultBox.textContent =
+              '연결 실패: ' +
+              error.message;
+
+          }
+
+        }
+      );
+    
   </script>
 
 </body>
