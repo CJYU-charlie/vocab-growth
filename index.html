@@ -1249,6 +1249,16 @@
 
     let answers = [];
 
+    let initialWritingText = '';
+
+    let finalWritingText = '';
+
+    let initialWritingEvaluation = null;
+
+    let finalWritingEvaluation = null;
+
+    let writingRewriteCount = 0;
+
     
     document
       .getElementById('startLearningBtn')
@@ -1302,6 +1312,12 @@
             currentWordIndex = 0;
 
             selfChecks = [];
+
+            initialWritingText = '';
+            finalWritingText = '';
+            initialWritingEvaluation = null;
+            finalWritingEvaluation = null;
+            writingRewriteCount = 0;
 
             renderCurrentWord();
     
@@ -2568,6 +2584,30 @@ async function submitWritingForTest() {
     }
 
 
+/*
+ * 첫 평가인지
+ * 수정 후 평가인지 구분해서 보관
+ */
+if (
+  initialWritingEvaluation === null
+) {
+
+  initialWritingText =
+    text;
+
+  initialWritingEvaluation =
+    result.evaluation;
+
+} else {
+
+  finalWritingText =
+    text;
+
+  finalWritingEvaluation =
+    result.evaluation;
+
+}    
+    
     showWritingEvaluation(
       result.evaluation
     );
@@ -2849,6 +2889,7 @@ document
 }
 
 function rewriteWriting() {
+  writingRewriteCount++;  
 
   /*
    * AI 피드백 숨기기
@@ -2907,16 +2948,205 @@ function rewriteWriting() {
 
 }
 
+function buildLearningResult() {
+
+  /*
+   * 첫 시도에 맞힌 문제 수
+   */
+  const firstTryCorrectCount =
+    answers.filter(
+      function(answer) {
+
+        return (
+          answer.firstTryCorrect === true
+        );
+
+      }
+    ).length;
+
+
+  /*
+   * 최종적으로 스스로 맞힌 문제 수
+   *
+   * 정답 공개 문제는 포함하지 않음
+   */
+  const finalCorrectCount =
+    answers.filter(
+      function(answer) {
+
+        return (
+          answer.finalCorrect === true
+        );
+
+      }
+    ).length;
+
+
+  /*
+   * 자기평가를 wordId 기준으로 변환
+   */
+  const selfEvaluation = {};
+
+  learningData.words.forEach(
+    function(word, index) {
+
+      selfEvaluation[
+        word.wordId
+      ] =
+        selfChecks[index] || null;
+
+    }
+  );
+
+
+  /*
+   * 수정하지 않았다면
+   * 최초 글을 최종 글로 사용
+   */
+  const resolvedFinalText =
+    finalWritingText ||
+    initialWritingText ||
+    document
+      .getElementById(
+        'writingInput'
+      )
+      .value
+      .trim();
+
+
+  /*
+   * 최종 평가는
+   * 수정 후 평가가 있으면 그것을 사용
+   */
+  const resolvedEvaluation =
+    finalWritingEvaluation ||
+    initialWritingEvaluation;
+
+
+  return {
+
+    /*
+     * 기본 학습 정보
+     */
+    learningDate:
+      learningData.date,
+
+    contentVersion:
+      learningData.contentVersion,
+
+
+    /*
+     * 오늘 학습어휘
+     */
+    wordIds:
+      learningData.words.map(
+        function(word) {
+
+          return word.wordId;
+
+        }
+      ),
+
+
+    /*
+     * 자기평가
+     */
+    selfEvaluation:
+      selfEvaluation,
+
+
+    /*
+     * 문제 결과
+     */
+    questions: {
+
+      total:
+        learningData.questions.length,
+
+      firstTryCorrect:
+        firstTryCorrectCount,
+
+      finalCorrect:
+        finalCorrectCount,
+
+      answers:
+        answers
+
+    },
+
+
+    /*
+     * 글쓰기
+     */
+    writing: {
+
+      targetWordIds:
+        learningData.writing.targetWordIds,
+
+      originalText:
+        initialWritingText,
+
+      finalText:
+        resolvedFinalText,
+
+      revised:
+        writingRewriteCount > 0,
+
+      rewriteCount:
+        writingRewriteCount,
+
+      initialEvaluation:
+        initialWritingEvaluation,
+
+      finalEvaluation:
+        resolvedEvaluation
+
+    }
+
+  };
+
+}
+    
 
 function finishWritingForTest() {
 
-  alert(
-    '오늘의 표현 활동까지 모두 마쳤어요! 🎉\n\n' +
-    '다음 단계에서 오늘의 학습 결과를 저장하고\n' +
-    '완료 화면으로 연결할 거예요.'
+  const learningResult =
+    buildLearningResult();
+
+
+  /*
+   * 개발 확인용
+   */
+  console.log(
+    '최종 학습 결과',
+    learningResult
   );
 
-}    
+
+  alert(
+    '학습 결과 객체 생성 성공! ✅\n\n' +
+
+    '첫 시도 정답: ' +
+    learningResult.questions.firstTryCorrect +
+    ' / ' +
+    learningResult.questions.total +
+    '\n\n' +
+
+    '최종 정답: ' +
+    learningResult.questions.finalCorrect +
+    ' / ' +
+    learningResult.questions.total +
+    '\n\n' +
+
+    '글 수정 여부: ' +
+    (
+      learningResult.writing.revised
+        ? '수정함'
+        : '수정하지 않음'
+    )
+  );
+
+} 
     
 
     /*
