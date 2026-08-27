@@ -296,6 +296,7 @@
       id="startLearningBtn"
       class="start-button"
       type="button"
+      disabled 
     >
       오늘 학습 시작하기
       </button>
@@ -1368,6 +1369,7 @@
     let finalWritingEvaluation = null;
 
     let writingRewriteCount = 0;
+    let todayCompleted = false;
 
 async function checkTodayCompletionFromApi() {
 
@@ -1415,6 +1417,7 @@ async function checkTodayCompletionFromApi() {
     if (
       !status.completed
     ) {
+      todayCompleted = false;
 
       message.style.display =
         'none';
@@ -1433,6 +1436,7 @@ async function checkTodayCompletionFromApi() {
     /*
      * 오늘 이미 완료
      */
+    todayCompleted = true;
     message.style.display =
       'block';
 
@@ -1513,6 +1517,9 @@ async function checkTodayCompletionFromApi() {
 
           event.preventDefault();
           event.stopPropagation();
+          if (todayCompleted) {
+            return;
+          }
 
           const button =
             document.getElementById(
@@ -1598,12 +1605,23 @@ async function checkTodayCompletionFromApi() {
           }
     
           finally {
-    
-            button.disabled = false;
-    
-            button.textContent =
-              '오늘 학습 시작하기';
-    
+
+            if (todayCompleted) {
+
+              button.disabled = true;
+
+              button.textContent =
+                '오늘 학습 완료 ✓';
+
+            } else {
+
+              button.disabled = false;
+
+              button.textContent =
+                '오늘 학습 시작하기';
+
+            }
+
           }
     
         }
