@@ -50,6 +50,15 @@
 
   <style>
 
+.doneStep {
+  background: #b9d3c3;
+  color: #315b45;
+}
+
+.doneLabel {
+  color: #4c7f63;
+}
+    
 #wordScreen {
   display: none;
 }
@@ -512,7 +521,174 @@
   </div>
 </section>
 
+<section
+  id="readingScreen"
+  style="
+    display:none;
+    min-height:100vh;
+    padding:32px 20px;
+  "
+>
+  <div
+    style="
+      max-width:640px;
+      margin:0 auto;
+    "
+  >
+
+    <!-- 상단 단계 표시 -->
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:34px;
+      "
+    >
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot doneStep">1</div>
+        <div class="stepLabel doneLabel">낱말</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div
+          style="
+            width:28px;
+            height:28px;
+            margin:0 auto 6px;
+            border-radius:50%;
+            background:#4c7f63;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:900;
+          "
+        >
+          2
+        </div>
+
+        <div
+          style="
+            font-size:12px;
+            font-weight:800;
+            color:#4c7f63;
+          "
+        >
+          읽기
+        </div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot">3</div>
+        <div class="stepLabel">문제</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot">4</div>
+        <div class="stepLabel">표현</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot">5</div>
+        <div class="stepLabel">완료</div>
+      </div>
+    </div>
+
+
+    <div
+      style="
+        text-align:center;
+        margin-bottom:22px;
+      "
+    >
+      <div
+        style="
+          font-size:14px;
+          color:#738178;
+          margin-bottom:8px;
+          font-weight:800;
+        "
+      >
+        오늘의 읽기
+      </div>
+
+      <h2
+        id="readingTitle"
+        style="
+          margin:0;
+          font-size:28px;
+          font-weight:900;
+          line-height:1.4;
+        "
+      >
+      </h2>
+    </div>
+
+
+    <!-- 지문 -->
+    <div
+      id="readingText"
+      style="
+        padding:24px 22px;
+        border-radius:20px;
+        background:#ffffff;
+        border:1px solid #dfe8e3;
+
+        font-size:17px;
+        line-height:1.95;
+
+        color:#2b3931;
+
+        white-space:pre-line;
+
+        box-shadow:
+          0 5px 18px
+          rgba(40,70,54,0.06);
+      "
+    >
+    </div>
+
+
+    <button
+      type="button"
+      onclick="goToQuestions()"
+      style="
+        margin-top:24px;
+        width:100%;
+        min-height:58px;
+        border:none;
+        border-radius:16px;
+        background:#4c7f63;
+        color:white;
+        font-size:18px;
+        font-weight:900;
+        cursor:pointer;
+      "
+    >
+      문제 풀러 가기 →
+    </button>
+
+
+    <button
+      type="button"
+      onclick="backToWords()"
+      style="
+        margin-top:12px;
+        width:100%;
+        min-height:48px;
+        border:none;
+        background:transparent;
+        color:#809088;
+        font-size:14px;
+        cursor:pointer;
+      "
+    >
+      낱말 다시 보기
+    </button>
+
+  </div>
 </section>
+
     
   </main>
 
@@ -800,11 +976,8 @@ function nextWord() {
 
   }
 
-
-  alert(
-    '오늘의 낱말 5개를 모두 확인했어요!\n\n' +
-    '다음 단계에서 뜻과 예문 학습을 연결할 거예요.'
-  );
+showReadingScreen();
+ 
 
 }    
 
@@ -858,9 +1031,88 @@ function backToHome() {
     
     }
     
-    
-    
+ function showReadingScreen() {
 
+  const reading =
+    learningData.reading;
+
+  document
+    .getElementById(
+      'readingTitle'
+    )
+    .textContent =
+      reading.title;
+
+
+  document
+    .getElementById(
+      'readingText'
+    )
+    .textContent =
+      reading.text;
+
+
+  document
+    .getElementById(
+      'wordScreen'
+    )
+    .style.display =
+      'none';
+
+
+  document
+    .getElementById(
+      'readingScreen'
+    )
+    .style.display =
+      'block';
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}   
+
+function backToWords() {
+
+  document
+    .getElementById(
+      'readingScreen'
+    )
+    .style.display =
+      'none';
+
+
+  document
+    .getElementById(
+      'wordScreen'
+    )
+    .style.display =
+      'block';
+
+
+  renderCurrentWord();
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}    
+    
+function goToQuestions() {
+
+  alert(
+    '읽기 단계까지 정상적으로 완료했어요!\n\n' +
+    '다음 단계에서 6문제 화면을 연결할 거예요.'
+  );
+
+}
+
+    
 
     /*
      * service worker 등록
