@@ -277,6 +277,21 @@
         이야기 속에서 뜻을 찾아볼까요?
       </p>
 
+<div
+  id="homeCompletionMessage"
+  style="
+    display:none;
+    margin-bottom:20px;
+    padding:20px;
+    border-radius:18px;
+    background:#eaf4ee;
+    color:#315b45;
+    text-align:center;
+    line-height:1.7;
+  "
+>
+</div>
+      
      <button
       id="startLearningBtn"
       class="start-button"
@@ -1353,6 +1368,141 @@
     let finalWritingEvaluation = null;
 
     let writingRewriteCount = 0;
+
+async function checkTodayCompletionFromApi() {
+
+  const button =
+    document.getElementById(
+      'startLearningBtn'
+    );
+
+
+  const message =
+    document.getElementById(
+      'homeCompletionMessage'
+    );
+
+
+  try {
+
+    const response =
+      await fetch(
+        APPS_SCRIPT_API_URL +
+        '?api=completion&t=' +
+        Date.now(),
+        {
+          cache:
+            'no-store'
+        }
+      );
+
+
+    if (
+      !response.ok
+    ) {
+
+      throw new Error(
+        '완료 여부 확인 실패'
+      );
+
+    }
+
+
+    const status =
+      await response.json();
+
+
+    if (
+      !status.completed
+    ) {
+
+      message.style.display =
+        'none';
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        '오늘 학습 시작하기';
+
+      return;
+
+    }
+
+
+    /*
+     * 오늘 이미 완료
+     */
+    message.style.display =
+      'block';
+
+
+    message.innerHTML = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:900;
+          margin-bottom:7px;
+        "
+      >
+        🌟 오늘 학습을 마쳤어요!
+      </div>
+
+      <div>
+        첫 도전에서
+        <strong>
+          ${status.score} / ${status.total}
+        </strong>
+        문제를 맞혔어요.
+      </div>
+
+      <div
+        style="
+          margin-top:5px;
+          font-size:13px;
+          color:#718078;
+        "
+      >
+        ${escapeHtml(
+          status.completedAt || ''
+        )}에 완료했어요.
+      </div>
+
+    `;
+
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      '오늘 학습 완료 ✓';
+
+
+    button.style.background =
+      '#a9c1b4';
+
+    button.style.cursor =
+      'default';
+
+
+  } catch (error) {
+
+    console.error(
+      '오늘 완료 여부 확인 오류:',
+      error
+    );
+
+    /*
+     * 완료 확인 API가 잠깐 실패했다고
+     * 학습 자체를 막지는 않는다.
+     */
+    button.disabled =
+      false;
+
+  }
+
+}
 
     
     document
@@ -3522,6 +3672,15 @@ async function finishWritingForTest() {
 
         }
       );
+
+        window.addEventListener(
+          'load',
+          function() {
+
+            checkTodayCompletionFromApi();
+
+          }
+        );
     
   </script>
 
