@@ -1148,7 +1148,58 @@
           line-height:1.7;
         "
       >
-      </div>  
+      </div> 
+
+<!-- 글쓰기 평가 후 선택 -->
+<div
+  id="writingNextActions"
+  style="
+    display:none;
+    margin-top:18px;
+  "
+>
+
+  <button
+    id="rewriteWritingBtn"
+    type="button"
+    onclick="rewriteWriting()"
+    style="
+      width:100%;
+      min-height:56px;
+      border:2px solid #4c7f63;
+      border-radius:16px;
+      background:#ffffff;
+      color:#3e6d52;
+      font-size:17px;
+      font-weight:900;
+      cursor:pointer;
+      margin-bottom:10px;
+    "
+  >
+    ✏️ 다시 써보기
+  </button>
+
+
+  <button
+    id="finishWritingBtn"
+    type="button"
+    onclick="finishWritingForTest()"
+    style="
+      width:100%;
+      min-height:58px;
+      border:none;
+      border-radius:16px;
+      background:#4c7f63;
+      color:#ffffff;
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer;
+    "
+  >
+    이대로 마치기 →
+  </button>
+
+</div>    
 
 
     <button
@@ -2521,7 +2572,14 @@ async function submitWritingForTest() {
       result.evaluation
     );
 
+document
+  .getElementById(
+    'writingSubmitBtn'
+  )
+  .style.display =
+    'none';
 
+    
   } catch (error) {
 
     alert(
@@ -2772,6 +2830,13 @@ function showWritingEvaluation(
   box.innerHTML =
     html;
 
+document
+  .getElementById(
+    'writingNextActions'
+  )
+  .style.display =
+    'block';
+  
 
   box.scrollIntoView({
     behavior:
@@ -2782,6 +2847,76 @@ function showWritingEvaluation(
   });
 
 }
+
+function rewriteWriting() {
+
+  /*
+   * AI 피드백 숨기기
+   */
+  document
+    .getElementById(
+      'writingEvaluationBox'
+    )
+    .style.display =
+      'none';
+
+
+  /*
+   * 선택 버튼 숨기기
+   */
+  document
+    .getElementById(
+      'writingNextActions'
+    )
+    .style.display =
+      'none';
+
+
+  /*
+   * 글쓰기 입력창 다시 활성화
+   */
+  const input =
+    document.getElementById(
+      'writingInput'
+    );
+
+
+  input.disabled =
+    false;
+
+  document
+  .getElementById(
+    'writingSubmitBtn'
+  )
+  .style.display =
+    'block';
+
+  input.focus();
+
+
+  /*
+   * 입력창 위치로 이동
+   */
+  input.scrollIntoView({
+    behavior:
+      'smooth',
+
+    block:
+      'center'
+  });
+
+}
+
+
+function finishWritingForTest() {
+
+  alert(
+    '오늘의 표현 활동까지 모두 마쳤어요! 🎉\n\n' +
+    '다음 단계에서 오늘의 학습 결과를 저장하고\n' +
+    '완료 화면으로 연결할 거예요.'
+  );
+
+}    
     
 
     /*
