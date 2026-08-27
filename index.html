@@ -2583,158 +2583,190 @@ function showWritingEvaluation(
     'block';
 
 
-  let html =
-    `
+  let html = `
+    <div
+      style="
+        font-size:21px;
+        font-weight:900;
+        margin-bottom:18px;
+      "
+    >
+      🌟 AI 선생님의 피드백
+    </div>
+  `;
+
+
+  /*
+   * 전체 피드백
+   */
+  if (
+    evaluation.overallFeedback
+  ) {
+
+    html += `
       <div
         style="
-          font-size:20px;
-          font-weight:900;
-          margin-bottom:14px;
+          padding:17px;
+          border-radius:14px;
+          background:#ffffff;
+          margin-bottom:16px;
         "
       >
-        🌟 AI 피드백
+
+        <div
+          style="
+            font-size:14px;
+            font-weight:900;
+            color:#4c7f63;
+            margin-bottom:7px;
+          "
+        >
+          💬 글을 읽어 보니
+        </div>
+
+        <div
+          style="
+            font-size:16px;
+            line-height:1.7;
+          "
+        >
+          ${escapeHtml(
+            evaluation.overallFeedback
+          )}
+        </div>
+
       </div>
     `;
 
-
-  /*
-   * 평가 데이터의 실제 필드명이
-   * 조금 달라도 최대한 표시되게 처리
-   */
-
-  if (
-    evaluation.praise ||
-    evaluation.strength
-  ) {
-
-    html +=
-      `
-        <div
-          style="
-            margin-bottom:14px;
-          "
-        >
-          <strong>
-            👍 잘한 점
-          </strong>
-          <br>
-          ${escapeHtml(
-            evaluation.praise ||
-            evaluation.strength
-          )}
-        </div>
-      `;
-
-  }
-
-
-  if (
-    evaluation.wordUsage ||
-    evaluation.vocabulary
-  ) {
-
-    html +=
-      `
-        <div
-          style="
-            margin-bottom:14px;
-          "
-        >
-          <strong>
-            🌱 낱말 사용
-          </strong>
-          <br>
-          ${escapeHtml(
-            evaluation.wordUsage ||
-            evaluation.vocabulary
-          )}
-        </div>
-      `;
-
-  }
-
-
-  if (
-    evaluation.improvement ||
-    evaluation.advice
-  ) {
-
-    html +=
-      `
-        <div
-          style="
-            margin-bottom:14px;
-          "
-        >
-          <strong>
-            ✏️ 더 좋아질 점
-          </strong>
-          <br>
-          ${escapeHtml(
-            evaluation.improvement ||
-            evaluation.advice
-          )}
-        </div>
-      `;
-
-  }
-
-
-  if (
-    evaluation.example ||
-    evaluation.revision
-  ) {
-
-    html +=
-      `
-        <div>
-          <strong>
-            📘 이렇게 다듬어 볼 수 있어요
-          </strong>
-          <br>
-          ${escapeHtml(
-            evaluation.example ||
-            evaluation.revision
-          )}
-        </div>
-      `;
-
   }
 
 
   /*
-   * 위 필드들이 하나도 없을 경우
-   * 전체 JSON을 임시로 표시
-   *
-   * 실제 구조를 확인하기 위한
-   * 개발용 안전장치
+   * 목표어휘별 평가
    */
   if (
-    html.indexOf('잘한 점') === -1 &&
-    html.indexOf('낱말 사용') === -1 &&
-    html.indexOf('더 좋아질 점') === -1 &&
-    html.indexOf('다듬어 볼 수 있어요') === -1
+    Array.isArray(
+      evaluation.evaluations
+    )
   ) {
 
-    html +=
-      `
-        <pre
-          style="
-            white-space:pre-wrap;
-            font-size:13px;
-          "
-        >
-${escapeHtml(
-  JSON.stringify(
-    evaluation,
-    null,
-    2
-  )
-)}
-        </pre>
-      `;
+    evaluation.evaluations.forEach(
+      function(item) {
+
+        let scoreText =
+          '조금 더 연습해 봐요';
+
+        let scoreEmoji =
+          '🌱';
+
+
+        if (
+          Number(item.usageScore) >= 2
+        ) {
+
+          scoreText =
+            '아주 잘 사용했어요!';
+
+          scoreEmoji =
+            '⭐';
+
+        } else if (
+          Number(item.usageScore) === 1
+        ) {
+
+          scoreText =
+            '거의 잘 사용했어요!';
+
+          scoreEmoji =
+            '👍';
+
+        }
+
+
+        html += `
+          <div
+            style="
+              padding:17px;
+              border-radius:14px;
+              background:#ffffff;
+              margin-bottom:16px;
+            "
+          >
+
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:10px;
+                margin-bottom:12px;
+              "
+            >
+
+              <strong
+                style="
+                  font-size:18px;
+                "
+              >
+                🌱 ${escapeHtml(
+                  item.word
+                )}
+              </strong>
+
+              <span
+                style="
+                  padding:6px 10px;
+                  border-radius:999px;
+                  background:#e7f2eb;
+                  color:#3e6d52;
+                  font-size:13px;
+                  font-weight:900;
+                "
+              >
+                ${scoreEmoji}
+                ${scoreText}
+              </span>
+
+            </div>
+
+
+            <div
+              style="
+                font-size:15px;
+                line-height:1.7;
+              "
+            >
+              ${escapeHtml(
+                item.feedback || ''
+              )}
+            </div>
+
+          </div>
+        `;
+
+      }
+    );
 
   }
+
+
+  /*
+   * 격려 문구
+   */
+  html += `
+    <div
+      style="
+        margin-top:6px;
+        text-align:center;
+        font-size:14px;
+        color:#6e8076;
+        line-height:1.6;
+      "
+    >
+      오늘 배운 낱말을 내 경험과 연결해서<br>
+      표현할수록 낱말이 더 오래 기억돼요. 🌿
+    </div>
+  `;
 
 
   box.innerHTML =
