@@ -1222,6 +1222,101 @@
   </div>
 
 </section>
+
+<section
+  id="completeScreen"
+  style="
+    display:none;
+    min-height:100vh;
+    padding:32px 20px;
+  "
+>
+
+  <div
+    style="
+      max-width:430px;
+      margin:0 auto;
+      text-align:center;
+      padding-top:50px;
+    "
+  >
+
+    <div
+      style="
+        font-size:58px;
+        margin-bottom:16px;
+      "
+    >
+      🌳
+    </div>
+
+
+    <div
+      style="
+        color:#63806f;
+        font-size:15px;
+        font-weight:800;
+        margin-bottom:8px;
+      "
+    >
+      오늘의 어휘성장
+    </div>
+
+
+    <h2
+      style="
+        margin:0 0 14px;
+        font-size:30px;
+        font-weight:900;
+        color:#26362e;
+      "
+    >
+      오늘 학습 완료! 🎉
+    </h2>
+
+
+    <p
+      style="
+        margin:0 0 28px;
+        color:#66766d;
+        font-size:16px;
+        line-height:1.7;
+      "
+    >
+      오늘도 새로운 낱말을 만나고<br>
+      이야기 속에서 뜻을 찾아보았어요.
+    </p>
+
+
+    <div
+      id="completeSummary"
+      style="
+        padding:20px;
+        border-radius:18px;
+        background:#eef5f1;
+        margin-bottom:24px;
+      "
+    >
+    </div>
+
+
+    <div
+      style="
+        padding:16px;
+        border-radius:16px;
+        background:#fff7e9;
+        color:#796344;
+        font-size:14px;
+        line-height:1.7;
+      "
+    >
+      🌱 오늘 만난 낱말은<br>
+      다음 학습에서 다시 만날 수도 있어요.
+    </div>
+
+  </div>
+
+</section>
     
     
     
@@ -3142,45 +3237,233 @@ function buildLearningResult() {
 }
     
 
-function finishWritingForTest() {
+function showCompleteScreen(
+  learningResult
+) {
+
+  /*
+   * 기존 표현 화면 숨기기
+   */
+  document
+    .getElementById(
+      'writingScreen'
+    )
+    .style.display =
+      'none';
+
+
+  /*
+   * 혹시 다른 학습 화면이
+   * 남아 있으면 숨기기
+   */
+  const questionScreen =
+    document.getElementById(
+      'questionScreen'
+    );
+
+  if (questionScreen) {
+
+    questionScreen.style.display =
+      'none';
+
+  }
+
+
+  const readingScreen =
+    document.getElementById(
+      'readingScreen'
+    );
+
+  if (readingScreen) {
+
+    readingScreen.style.display =
+      'none';
+
+  }
+
+
+  /*
+   * 완료 요약
+   */
+  const summary =
+    document.getElementById(
+      'completeSummary'
+    );
+
+
+  summary.innerHTML = `
+
+    <div
+      style="
+        font-size:14px;
+        color:#718077;
+        margin-bottom:6px;
+      "
+    >
+      오늘 만난 낱말
+    </div>
+
+    <div
+      style="
+        font-size:26px;
+        font-weight:900;
+        color:#345744;
+        margin-bottom:18px;
+      "
+    >
+      ${learningResult.wordIds.length}개
+    </div>
+
+
+    <div
+      style="
+        height:1px;
+        background:#dce8e1;
+        margin-bottom:18px;
+      "
+    ></div>
+
+
+    <div
+      style="
+        font-size:14px;
+        color:#718077;
+        margin-bottom:6px;
+      "
+    >
+      첫 도전에서 맞힌 문제
+    </div>
+
+    <div
+      style="
+        font-size:22px;
+        font-weight:900;
+        color:#345744;
+      "
+    >
+      ${learningResult.questions.firstTryCorrect}
+      /
+      ${learningResult.questions.total}
+    </div>
+
+  `;
+
+
+  /*
+   * 완료 화면 표시
+   */
+  document
+    .getElementById(
+      'completeScreen'
+    )
+    .style.display =
+      'block';
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}
+
+    
+      
+async function finishWritingForTest() {
 
   const learningResult =
     buildLearningResult();
 
 
-  /*
-   * 개발 확인용
-   */
-  console.log(
-    '최종 학습 결과',
-    learningResult
-  );
+  const button =
+    document.getElementById(
+      'finishWritingBtn'
+    );
 
 
-  alert(
-    '학습 결과 객체 생성 성공! ✅\n\n' +
+  button.disabled =
+    true;
 
-    '첫 시도 정답: ' +
-    learningResult.questions.firstTryCorrect +
-    ' / ' +
-    learningResult.questions.total +
-    '\n\n' +
+  button.textContent =
+    '오늘의 학습을 저장하고 있어요...';
 
-    '최종 정답: ' +
-    learningResult.questions.finalCorrect +
-    ' / ' +
-    learningResult.questions.total +
-    '\n\n' +
 
-    '글 수정 여부: ' +
-    (
-      learningResult.writing.revised
-        ? '수정함'
-        : '수정하지 않음'
-    )
-  );
+  try {
 
-} 
+    const response =
+      await fetch(
+        APPS_SCRIPT_API_URL +
+        '?api=saveLearning',
+        {
+          method:
+            'POST',
+
+          headers: {
+            'Content-Type':
+              'text/plain;charset=utf-8'
+          },
+
+          body:
+            JSON.stringify(
+              learningResult
+            )
+        }
+      );
+
+
+    if (
+      !response.ok
+    ) {
+
+      throw new Error(
+        'API 응답 오류'
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !result.success
+    ) {
+
+      throw new Error(
+        result.message ||
+        '학습 결과 저장에 실패했습니다.'
+      );
+
+    }
+
+
+    /*
+     * 저장까지 성공한 경우에만
+     * 완료 화면 표시
+     */
+    showCompleteScreen(
+      learningResult
+    );
+
+
+  } catch (error) {
+
+    alert(
+      '오늘의 학습 결과를 저장하지 못했어요.\n\n' +
+      error.message
+    );
+
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      '다시 저장하기 →';
+
+  }
+
+}
     
 
     /*
