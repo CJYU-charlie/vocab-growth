@@ -41,11 +41,27 @@ self.addEventListener(
 self.addEventListener(
   'fetch',
   function(event) {
+
+    // 페이지 이동(index.html)은 항상 최신 버전을 먼저 받는다.
+    if (event.request.mode === 'navigate') {
+
+      event.respondWith(
+        fetch(event.request)
+          .catch(function() {
+            return caches.match('./index.html');
+          })
+      );
+
+      return;
+    }
+
+    // 아이콘 등 나머지 파일은 캐시 우선
     event.respondWith(
       caches.match(event.request)
         .then(function(response) {
           return response || fetch(event.request);
         })
     );
+
   }
 );
