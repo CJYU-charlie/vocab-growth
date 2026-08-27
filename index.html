@@ -1616,7 +1616,9 @@ function checkQuestionAnswer() {
 
 
   /*
+   * ========================================
    * 정답
+   * ========================================
    */
   if (isCorrect) {
 
@@ -1674,8 +1676,63 @@ function checkQuestionAnswer() {
 
     saveLocalQuestionResult(
       question,
-      true
+      true,
+      false
     );
+
+
+    showNextQuestionButton();
+
+    return;
+
+  }
+
+
+  /*
+   * ========================================
+   * 1번째 오답
+   * → 힌트 후 재도전
+   * ========================================
+   */
+  if (
+    questionAttemptCount === 1
+  ) {
+
+    questionState =
+      'retry';
+
+
+    buttons[
+      selectedChoice
+    ].classList.add(
+      'wrongChoice'
+    );
+
+
+    feedback.style.display =
+      'block';
+
+    feedback.style.background =
+      '#fff4e5';
+
+    feedback.style.color =
+      '#79552e';
+
+
+    feedback.innerHTML =
+      `
+        <strong>
+          💡 한 번 더 생각해 봐요
+        </strong>
+        <br>
+        ${escapeHtml(
+          question.hint
+        )}
+      `;
+
+
+    selectedChoice =
+      null;
 
 
     const actionButton =
@@ -1684,24 +1741,11 @@ function checkQuestionAnswer() {
       );
 
 
-    if (
-      currentQuestionIndex ===
-      learningData.questions.length - 1
-    ) {
-
-      actionButton.textContent =
-        '문제 풀이 완료 →';
-
-    } else {
-
-      actionButton.textContent =
-        '다음 문제 →';
-
-    }
-
+    actionButton.textContent =
+      '다시 확인하기';
 
     actionButton.onclick =
-      nextQuestion;
+      checkQuestionAnswer;
 
 
     return;
@@ -1710,11 +1754,14 @@ function checkQuestionAnswer() {
 
 
   /*
-   * 오답
+   * ========================================
+   * 2번째 오답
+   * → 정답 공개 후 다음 문제
+   * ========================================
    */
 
   questionState =
-    'retry';
+    'correct';
 
 
   buttons[
@@ -1724,52 +1771,66 @@ function checkQuestionAnswer() {
   );
 
 
+  const correctIndex =
+    Number(
+      question.answer
+    );
+
+
+  buttons[
+    correctIndex
+  ].classList.add(
+    'correctChoice'
+  );
+
+
   feedback.style.display =
     'block';
 
   feedback.style.background =
-    '#fff4e5';
+    '#eef4f0';
 
   feedback.style.color =
-    '#79552e';
+    '#394d42';
 
 
   feedback.innerHTML =
     `
       <strong>
-        💡 한 번 더 생각해 봐요
+        📘 정답을 확인해 봐요
       </strong>
       <br>
+      정답은
+      <strong>
+        ${escapeHtml(
+          question.choices[
+            correctIndex
+          ]
+        )}
+      </strong>
+      입니다.
+      <br><br>
       ${escapeHtml(
-        question.hint
+        question.explanation
       )}
     `;
 
 
-  /*
-   * 다시 선택할 수 있게
-   */
-  selectedChoice =
-    null;
+  saveLocalQuestionResult(
+    question,
+    false,
+    true
+  );
 
 
-  const actionButton =
-    document.getElementById(
-      'questionActionBtn'
-    );
-
-
-  actionButton.textContent =
-    '다시 확인하기';
-
-  actionButton.onclick =
-    checkQuestionAnswer;
+  showNextQuestionButton();
 
 }
-
+    
 function saveLocalQuestionResult(
   question,
-  finalCorrect
+  finalCorrect,
+  revealed
 ) {
 
   const existing =
@@ -1785,20 +1846,7 @@ function saveLocalQuestionResult(
     );
 
 
-  if (existing) {
-
-    existing.finalCorrect =
-      finalCorrect;
-
-    existing.attempts =
-      questionAttemptCount;
-
-    return;
-
-  }
-
-
-  answers.push({
+  const result = {
 
     questionId:
       question.id,
@@ -1810,18 +1858,69 @@ function saveLocalQuestionResult(
       question.type,
 
     firstTryCorrect:
-      questionAttemptCount === 1,
+      questionAttemptCount === 1 &&
+      finalCorrect === true,
 
     finalCorrect:
       finalCorrect,
 
     attempts:
-      questionAttemptCount
+      questionAttemptCount,
 
-  });
+    revealed:
+      revealed
+
+  };
+
+
+  if (existing) {
+
+    Object.assign(
+      existing,
+      result
+    );
+
+    return;
+
+  }
+
+
+  answers.push(
+    result
+  );
 
 }
 
+
+function showNextQuestionButton() {
+
+  const actionButton =
+    document.getElementById(
+      'questionActionBtn'
+    );
+
+
+  if (
+    currentQuestionIndex ===
+    learningData.questions.length - 1
+  ) {
+
+    actionButton.textContent =
+      '문제 풀이 완료 →';
+
+  } else {
+
+    actionButton.textContent =
+      '다음 문제 →';
+
+  }
+
+
+  actionButton.onclick =
+    nextQuestion;
+
+}
+    
 
 function nextQuestion() {
 
