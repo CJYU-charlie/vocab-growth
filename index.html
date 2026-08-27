@@ -2876,6 +2876,40 @@ document
   )
   .style.display =
     'block';
+
+  /*
+ * 다시 쓰기는 한 번만 허용
+ */
+const rewriteButton =
+  document.getElementById(
+    'rewriteWritingBtn'
+  );
+
+const finishButton =
+  document.getElementById(
+    'finishWritingBtn'
+  );
+
+
+if (
+  writingRewriteCount > 0
+) {
+
+  rewriteButton.style.display =
+    'none';
+
+  finishButton.textContent =
+    '수정한 글로 마치기 →';
+
+} else {
+
+  rewriteButton.style.display =
+    'block';
+
+  finishButton.textContent =
+    '이대로 마치기 →';
+
+}
   
 
   box.scrollIntoView({
