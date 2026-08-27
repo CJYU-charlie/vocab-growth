@@ -50,6 +50,10 @@
 
   <style>
 
+#wordScreen {
+  display: none;
+}
+    
 .stepDot {
   width: 28px;
   height: 28px;
@@ -508,53 +512,6 @@
   </div>
 </section>
 
-  <div
-    style="
-      max-width:430px;
-      margin:0 auto;
-    "
-  >
-
-    <div
-      style="
-        text-align:center;
-        margin-bottom:26px;
-      "
-    >
-      <div
-        style="
-          font-size:15px;
-          color:#6f7d75;
-          margin-bottom:8px;
-        "
-      >
-        오늘의 낱말
-      </div>
-
-      <h2
-        style="
-          margin:0;
-          font-size:28px;
-          font-weight:900;
-        "
-      >
-        오늘 만날 어휘 5개
-      </h2>
-    </div>
-
-
-    <div
-      id="todayWords"
-      style="
-        display:grid;
-        gap:12px;
-      "
-    ></div>
-
-
-
-
-  </div>
 </section>
     
   </main>
@@ -880,98 +837,6 @@ function backToHome() {
     
     
 
-      {
-    
-      const container =
-        document.getElementById(
-          'todayWords'
-        );
-    
-    
-      container.innerHTML =
-        '';
-    
-    
-      words.forEach(
-        function(word, index) {
-    
-          const card =
-            document.createElement(
-              'div'
-            );
-    
-    
-          card.style.cssText = `
-            padding:20px;
-            border-radius:18px;
-            background:#ffffff;
-            box-shadow:
-              0 5px 18px
-              rgba(40,70,54,0.08);
-          `;
-    
-    
-          card.innerHTML = `
-            <div
-              style="
-                display:flex;
-                align-items:center;
-                justify-content:space-between;
-                gap:12px;
-              "
-            >
-    
-              <div>
-    
-                <div
-                  style="
-                    margin-bottom:5px;
-                    color:#839087;
-                    font-size:13px;
-                    font-weight:700;
-                  "
-                >
-                  ${index + 1}번째 낱말
-                </div>
-    
-                <div
-                  style="
-                    font-size:25px;
-                    font-weight:900;
-                    color:#26362e;
-                  "
-                >
-                  ${escapeHtml(word.word)}
-                </div>
-    
-              </div>
-    
-    
-              <div
-                style="
-                  padding:7px 12px;
-                  border-radius:999px;
-                  background:#edf5f0;
-                  color:#466b57;
-                  font-size:14px;
-                  font-weight:800;
-                "
-              >
-                ${escapeHtml(word.subject)}
-              </div>
-    
-            </div>
-          `;
-    
-    
-          container.appendChild(
-            card
-          );
-    
-        }
-      );
-    
-    }
     
     
     
