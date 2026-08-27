@@ -312,11 +312,6 @@
           event.preventDefault();
           event.stopPropagation();
 
-          alert(
-            '현재 페이지 주소:\n' +
-            window.location.href
-          );
-          
           const button =
             document.getElementById(
               'startLearningBtn'
@@ -361,7 +356,7 @@
     
     
             document
-              .querySelector('.wrap')
+              .querySelector('.card')
               .style.display =
                 'none';
     
@@ -537,10 +532,10 @@
     
           document
             .querySelector(
-              '.wrap'
+              '.card'
             )
             .style.display =
-              'flex';
+              'block';
     
     
           window.scrollTo(
