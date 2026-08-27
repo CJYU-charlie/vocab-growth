@@ -50,6 +50,41 @@
 
   <style>
 
+.choiceBtn {
+  width: 100%;
+  min-height: 58px;
+
+  padding: 14px 16px;
+
+  border: 2px solid #dfe7e2;
+  border-radius: 15px;
+
+  background: #ffffff;
+  color: #26362e;
+
+  text-align: left;
+
+  font-size: 16px;
+  line-height: 1.55;
+
+  cursor: pointer;
+}
+
+.choiceBtn.selected {
+  border-color: #4c7f63;
+  background: #edf5f0;
+}
+
+.choiceBtn.correctChoice {
+  border-color: #4c7f63;
+  background: #e7f4eb;
+}
+
+.choiceBtn.wrongChoice {
+  border-color: #dc9d83;
+  background: #fff1eb;
+}
+    
 .doneStep {
   background: #b9d3c3;
   color: #315b45;
@@ -689,6 +724,201 @@
   </div>
 </section>
 
+<!-- ========================================
+     3단계 : 문제
+     ======================================== -->
+
+<section
+  id="questionScreen"
+  style="
+    display:none;
+    min-height:100vh;
+    padding:32px 20px;
+  "
+>
+
+  <div
+    style="
+      max-width:640px;
+      margin:0 auto;
+    "
+  >
+
+    <!-- 진행 단계 -->
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:34px;
+      "
+    >
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot doneStep">1</div>
+        <div class="stepLabel doneLabel">낱말</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot doneStep">2</div>
+        <div class="stepLabel doneLabel">읽기</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div
+          style="
+            width:28px;
+            height:28px;
+            margin:0 auto 6px;
+            border-radius:50%;
+            background:#4c7f63;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:900;
+          "
+        >
+          3
+        </div>
+
+        <div
+          style="
+            font-size:12px;
+            font-weight:800;
+            color:#4c7f63;
+          "
+        >
+          문제
+        </div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot">4</div>
+        <div class="stepLabel">표현</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot">5</div>
+        <div class="stepLabel">완료</div>
+      </div>
+
+    </div>
+
+
+    <!-- 문제 번호 -->
+    <div
+      id="questionCounter"
+      style="
+        text-align:center;
+        margin-bottom:18px;
+        color:#65756c;
+        font-size:15px;
+        font-weight:900;
+      "
+    >
+      1 / 6
+    </div>
+
+
+    <!-- 문제 유형 -->
+    <div
+      id="questionType"
+      style="
+        display:inline-block;
+        margin-bottom:14px;
+        padding:6px 11px;
+        border-radius:999px;
+        background:#edf4ef;
+        color:#496b58;
+        font-size:13px;
+        font-weight:900;
+      "
+    >
+    </div>
+
+
+    <!-- 질문 -->
+    <div
+      id="questionText"
+      style="
+        margin-bottom:24px;
+        font-size:22px;
+        line-height:1.55;
+        font-weight:900;
+        color:#26362e;
+      "
+    >
+    </div>
+
+
+    <!-- 선택지 -->
+    <div
+      id="choiceContainer"
+      style="
+        display:grid;
+        gap:11px;
+      "
+    >
+    </div>
+
+
+    <!-- 피드백 -->
+    <div
+      id="questionFeedback"
+      style="
+        display:none;
+        margin-top:20px;
+        padding:18px;
+        border-radius:16px;
+        line-height:1.7;
+      "
+    >
+    </div>
+
+
+    <!-- 확인 / 다음 버튼 -->
+    <button
+      id="questionActionBtn"
+      type="button"
+      onclick="checkQuestionAnswer()"
+      style="
+        margin-top:22px;
+        width:100%;
+        min-height:58px;
+        border:none;
+        border-radius:16px;
+        background:#4c7f63;
+        color:#ffffff;
+        font-size:18px;
+        font-weight:900;
+        cursor:pointer;
+      "
+    >
+      정답 확인하기
+    </button>
+
+
+    <button
+      type="button"
+      onclick="backToReading()"
+      style="
+        margin-top:12px;
+        width:100%;
+        min-height:48px;
+        border:none;
+        background:transparent;
+        color:#809088;
+        font-size:14px;
+        cursor:pointer;
+      "
+    >
+      글 다시 보기
+    </button>
+
+  </div>
+
+</section>
+    
     
   </main>
 
@@ -703,6 +933,16 @@
     let currentWordIndex = 0;
   
     let selfChecks = [];
+
+    let currentQuestionIndex = 0;
+
+    let selectedChoice = null;
+
+    let questionState = 'waiting';
+    
+    let questionAttemptCount = 0;
+
+    let answers = [];
 
     
     document
@@ -1105,13 +1345,551 @@ function backToWords() {
     
 function goToQuestions() {
 
-  alert(
-    '읽기 단계까지 정상적으로 완료했어요!\n\n' +
-    '다음 단계에서 6문제 화면을 연결할 거예요.'
+  currentQuestionIndex = 0;
+
+  selectedChoice = null;
+
+  questionState = 'waiting';
+
+  questionAttemptCount = 0;
+
+  answers = [];
+
+
+  document
+    .getElementById(
+      'readingScreen'
+    )
+    .style.display =
+      'none';
+
+
+  document
+    .getElementById(
+      'questionScreen'
+    )
+    .style.display =
+      'block';
+
+
+  renderQuestion();
+
+
+  window.scrollTo(
+    0,
+    0
   );
 
 }
 
+
+function renderQuestion() {
+
+  const question =
+    learningData.questions[
+      currentQuestionIndex
+    ];
+
+
+  selectedChoice = null;
+
+  questionState =
+    'waiting';
+
+  questionAttemptCount =
+    0;
+
+
+  document
+    .getElementById(
+      'questionCounter'
+    )
+    .textContent =
+      (currentQuestionIndex + 1) +
+      ' / ' +
+      learningData.questions.length;
+
+
+  document
+    .getElementById(
+      'questionType'
+    )
+    .textContent =
+      getQuestionTypeLabel(
+        question.type
+      );
+
+
+  document
+    .getElementById(
+      'questionText'
+    )
+    .textContent =
+      question.question;
+
+
+  const container =
+    document.getElementById(
+      'choiceContainer'
+    );
+
+
+  container.innerHTML =
+    '';
+
+
+  question.choices.forEach(
+    function(choice, index) {
+
+      const button =
+        document.createElement(
+          'button'
+        );
+
+
+      button.type =
+        'button';
+
+
+      button.className =
+        'choiceBtn';
+
+
+      button.textContent =
+        choice;
+
+
+      button.onclick =
+        function() {
+
+          selectChoice(
+            index
+          );
+
+        };
+
+
+      container.appendChild(
+        button
+      );
+
+    }
+  );
+
+
+  const feedback =
+    document.getElementById(
+      'questionFeedback'
+    );
+
+
+  feedback.style.display =
+    'none';
+
+  feedback.innerHTML =
+    '';
+
+
+  const actionButton =
+    document.getElementById(
+      'questionActionBtn'
+    );
+
+
+  actionButton.textContent =
+    '정답 확인하기';
+
+  actionButton.onclick =
+    checkQuestionAnswer;
+
+}
+
+function getQuestionTypeLabel(
+  type
+) {
+
+  const labels = {
+
+    vocabulary:
+      '낱말 뜻',
+
+    context:
+      '글 속 뜻',
+
+    application:
+      '새로운 상황',
+
+    comprehension:
+      '글 이해'
+
+  };
+
+
+  return (
+    labels[type] ||
+    '문제'
+  );
+
+}
+
+function selectChoice(
+  index
+) {
+
+  if (
+    questionState ===
+    'correct'
+  ) {
+    return;
+  }
+
+
+  selectedChoice =
+    index;
+
+
+  const buttons =
+    document.querySelectorAll(
+      '#choiceContainer .choiceBtn'
+    );
+
+
+  buttons.forEach(
+    function(button) {
+
+      button.classList.remove(
+        'selected'
+      );
+
+    }
+  );
+
+
+  buttons[index]
+    .classList.add(
+      'selected'
+    );
+
+}
+
+function checkQuestionAnswer() {
+
+  if (
+    selectedChoice === null
+  ) {
+
+    alert(
+      '먼저 답을 하나 골라 주세요.'
+    );
+
+    return;
+
+  }
+
+
+  const question =
+    learningData.questions[
+      currentQuestionIndex
+    ];
+
+
+  questionAttemptCount++;
+
+
+  const isCorrect =
+    selectedChoice ===
+    Number(
+      question.answer
+    );
+
+
+  const buttons =
+    document.querySelectorAll(
+      '#choiceContainer .choiceBtn'
+    );
+
+
+  const feedback =
+    document.getElementById(
+      'questionFeedback'
+    );
+
+
+  /*
+   * 정답
+   */
+  if (isCorrect) {
+
+    questionState =
+      'correct';
+
+
+    buttons[
+      selectedChoice
+    ].classList.add(
+      'correctChoice'
+    );
+
+
+    feedback.style.display =
+      'block';
+
+    feedback.style.background =
+      '#eaf6ee';
+
+    feedback.style.color =
+      '#315b45';
+
+
+    if (
+      questionAttemptCount === 1
+    ) {
+
+      feedback.innerHTML =
+        `
+          <strong>
+            🌟 맞았어요!
+          </strong>
+          <br>
+          ${escapeHtml(
+            question.explanation
+          )}
+        `;
+
+    } else {
+
+      feedback.innerHTML =
+        `
+          <strong>
+            🌟 다시 생각해서 맞혔어요!
+          </strong>
+          <br>
+          ${escapeHtml(
+            question.explanation
+          )}
+        `;
+
+    }
+
+
+    saveLocalQuestionResult(
+      question,
+      true
+    );
+
+
+    const actionButton =
+      document.getElementById(
+        'questionActionBtn'
+      );
+
+
+    if (
+      currentQuestionIndex ===
+      learningData.questions.length - 1
+    ) {
+
+      actionButton.textContent =
+        '문제 풀이 완료 →';
+
+    } else {
+
+      actionButton.textContent =
+        '다음 문제 →';
+
+    }
+
+
+    actionButton.onclick =
+      nextQuestion;
+
+
+    return;
+
+  }
+
+
+  /*
+   * 오답
+   */
+
+  questionState =
+    'retry';
+
+
+  buttons[
+    selectedChoice
+  ].classList.add(
+    'wrongChoice'
+  );
+
+
+  feedback.style.display =
+    'block';
+
+  feedback.style.background =
+    '#fff4e5';
+
+  feedback.style.color =
+    '#79552e';
+
+
+  feedback.innerHTML =
+    `
+      <strong>
+        💡 한 번 더 생각해 봐요
+      </strong>
+      <br>
+      ${escapeHtml(
+        question.hint
+      )}
+    `;
+
+
+  /*
+   * 다시 선택할 수 있게
+   */
+  selectedChoice =
+    null;
+
+
+  const actionButton =
+    document.getElementById(
+      'questionActionBtn'
+    );
+
+
+  actionButton.textContent =
+    '다시 확인하기';
+
+  actionButton.onclick =
+    checkQuestionAnswer;
+
+}
+
+function saveLocalQuestionResult(
+  question,
+  finalCorrect
+) {
+
+  const existing =
+    answers.find(
+      function(item) {
+
+        return (
+          item.questionId ===
+          question.id
+        );
+
+      }
+    );
+
+
+  if (existing) {
+
+    existing.finalCorrect =
+      finalCorrect;
+
+    existing.attempts =
+      questionAttemptCount;
+
+    return;
+
+  }
+
+
+  answers.push({
+
+    questionId:
+      question.id,
+
+    targetWordId:
+      question.targetWordId,
+
+    type:
+      question.type,
+
+    firstTryCorrect:
+      questionAttemptCount === 1,
+
+    finalCorrect:
+      finalCorrect,
+
+    attempts:
+      questionAttemptCount
+
+  });
+
+}
+
+
+function nextQuestion() {
+
+  if (
+    questionState !==
+    'correct'
+  ) {
+    return;
+  }
+
+
+  if (
+    currentQuestionIndex <
+    learningData.questions.length - 1
+  ) {
+
+    currentQuestionIndex++;
+
+    renderQuestion();
+
+    window.scrollTo(
+      0,
+      0
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * 6문제 완료
+   *
+   * 아직 표현 화면은
+   * 다음 단계에서 연결한다.
+   */
+
+  alert(
+    '6문제를 모두 풀었어요! 🎉\n\n' +
+    '다음 단계에서 표현 활동을 연결할 거예요.'
+  );
+
+}
+
+function backToReading() {
+
+  document
+    .getElementById(
+      'questionScreen'
+    )
+    .style.display =
+      'none';
+
+
+  document
+    .getElementById(
+      'readingScreen'
+    )
+    .style.display =
+      'block';
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}
     
 
     /*
