@@ -2380,7 +2380,7 @@ function updateWritingCount() {
 
 }    
 
-function submitWritingForTest() {
+async function submitWritingForTest() {
 
   const writing =
     learningData.writing;
@@ -2408,6 +2408,9 @@ function submitWritingForTest() {
     );
 
 
+  /*
+   * 글자 수 확인
+   */
   if (
     text.length <
     minLength
@@ -2444,14 +2447,85 @@ function submitWritingForTest() {
   }
 
 
-  alert(
-    '표현 활동 화면까지 정상적으로 연결됐어요! 🎉\n\n' +
-    '다음 단계에서 이 글을 Gemini에게 보내서\n' +
-    'AI 피드백을 받도록 연결할 거예요.'
-  );
+  const button =
+    document.getElementById(
+      'writingSubmitBtn'
+    );
 
-}    
 
+  button.disabled =
+    true;
+
+  button.textContent =
+    'AI가 글을 살펴보고 있어요...';
+
+
+  try {
+
+    const response =
+      await fetch(
+        APPS_SCRIPT_API_URL +
+        '?api=writing',
+        {
+          method:
+            'POST',
+
+          headers: {
+            'Content-Type':
+              'text/plain;charset=utf-8'
+          },
+
+          body:
+            JSON.stringify({
+              text:
+                text,
+
+              targetWordIds:
+                writing.targetWordIds
+            })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !result.success
+    ) {
+
+      throw new Error(
+        result.message ||
+        '글쓰기 평가에 실패했습니다.'
+      );
+
+    }
+
+
+    showWritingEvaluation(
+      result.evaluation
+    );
+
+
+  } catch (error) {
+
+    alert(
+      'AI 글쓰기 평가를 불러오지 못했어요.\n\n' +
+      error.message
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      '글쓰기 확인하기 →';
+
+  }
+
+}
 
 function backToQuestions() {
 
