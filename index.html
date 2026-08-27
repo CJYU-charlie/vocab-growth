@@ -1136,6 +1136,20 @@
       글쓰기 확인하기 →
     </button>
 
+      <div
+        id="writingEvaluationBox"
+        style="
+          display:none;
+          margin-top:20px;
+          padding:20px;
+          border-radius:18px;
+          background:#eef6f1;
+          color:#30483a;
+          line-height:1.7;
+        "
+      >
+      </div>  
+
 
     <button
       type="button"
@@ -2553,7 +2567,190 @@ function backToQuestions() {
     0
   );
 
-}    
+}
+
+function showWritingEvaluation(
+  evaluation
+) {
+
+  const box =
+    document.getElementById(
+      'writingEvaluationBox'
+    );
+
+
+  box.style.display =
+    'block';
+
+
+  let html =
+    `
+      <div
+        style="
+          font-size:20px;
+          font-weight:900;
+          margin-bottom:14px;
+        "
+      >
+        🌟 AI 피드백
+      </div>
+    `;
+
+
+  /*
+   * 평가 데이터의 실제 필드명이
+   * 조금 달라도 최대한 표시되게 처리
+   */
+
+  if (
+    evaluation.praise ||
+    evaluation.strength
+  ) {
+
+    html +=
+      `
+        <div
+          style="
+            margin-bottom:14px;
+          "
+        >
+          <strong>
+            👍 잘한 점
+          </strong>
+          <br>
+          ${escapeHtml(
+            evaluation.praise ||
+            evaluation.strength
+          )}
+        </div>
+      `;
+
+  }
+
+
+  if (
+    evaluation.wordUsage ||
+    evaluation.vocabulary
+  ) {
+
+    html +=
+      `
+        <div
+          style="
+            margin-bottom:14px;
+          "
+        >
+          <strong>
+            🌱 낱말 사용
+          </strong>
+          <br>
+          ${escapeHtml(
+            evaluation.wordUsage ||
+            evaluation.vocabulary
+          )}
+        </div>
+      `;
+
+  }
+
+
+  if (
+    evaluation.improvement ||
+    evaluation.advice
+  ) {
+
+    html +=
+      `
+        <div
+          style="
+            margin-bottom:14px;
+          "
+        >
+          <strong>
+            ✏️ 더 좋아질 점
+          </strong>
+          <br>
+          ${escapeHtml(
+            evaluation.improvement ||
+            evaluation.advice
+          )}
+        </div>
+      `;
+
+  }
+
+
+  if (
+    evaluation.example ||
+    evaluation.revision
+  ) {
+
+    html +=
+      `
+        <div>
+          <strong>
+            📘 이렇게 다듬어 볼 수 있어요
+          </strong>
+          <br>
+          ${escapeHtml(
+            evaluation.example ||
+            evaluation.revision
+          )}
+        </div>
+      `;
+
+  }
+
+
+  /*
+   * 위 필드들이 하나도 없을 경우
+   * 전체 JSON을 임시로 표시
+   *
+   * 실제 구조를 확인하기 위한
+   * 개발용 안전장치
+   */
+  if (
+    html.indexOf('잘한 점') === -1 &&
+    html.indexOf('낱말 사용') === -1 &&
+    html.indexOf('더 좋아질 점') === -1 &&
+    html.indexOf('다듬어 볼 수 있어요') === -1
+  ) {
+
+    html +=
+      `
+        <pre
+          style="
+            white-space:pre-wrap;
+            font-size:13px;
+          "
+        >
+${escapeHtml(
+  JSON.stringify(
+    evaluation,
+    null,
+    2
+  )
+)}
+        </pre>
+      `;
+
+  }
+
+
+  box.innerHTML =
+    html;
+
+
+  box.scrollIntoView({
+    behavior:
+      'smooth',
+
+    block:
+      'start'
+  });
+
+}
+    
 
     /*
      * service worker 등록
