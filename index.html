@@ -918,6 +918,246 @@
   </div>
 
 </section>
+
+
+<!-- ========================================
+     4단계 : 표현
+     ======================================== -->
+
+<section
+  id="writingScreen"
+  style="
+    display:none;
+    min-height:100vh;
+    padding:32px 20px;
+  "
+>
+
+  <div
+    style="
+      max-width:640px;
+      margin:0 auto;
+    "
+  >
+
+    <!-- 진행 단계 -->
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:34px;
+      "
+    >
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot doneStep">1</div>
+        <div class="stepLabel doneLabel">낱말</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot doneStep">2</div>
+        <div class="stepLabel doneLabel">읽기</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot doneStep">3</div>
+        <div class="stepLabel doneLabel">문제</div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div
+          style="
+            width:28px;
+            height:28px;
+            margin:0 auto 6px;
+            border-radius:50%;
+            background:#4c7f63;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:900;
+          "
+        >
+          4
+        </div>
+
+        <div
+          style="
+            font-size:12px;
+            font-weight:800;
+            color:#4c7f63;
+          "
+        >
+          표현
+        </div>
+      </div>
+
+      <div style="text-align:center;width:20%;">
+        <div class="stepDot">5</div>
+        <div class="stepLabel">완료</div>
+      </div>
+
+    </div>
+
+
+    <div
+      style="
+        text-align:center;
+        margin-bottom:24px;
+      "
+    >
+
+      <div
+        style="
+          font-size:14px;
+          color:#738178;
+          font-weight:800;
+          margin-bottom:8px;
+        "
+      >
+        오늘의 표현
+      </div>
+
+      <h2
+        style="
+          margin:0;
+          font-size:28px;
+          font-weight:900;
+        "
+      >
+        내 생각을 글로 표현해 봐요
+      </h2>
+
+    </div>
+
+
+    <!-- 활용 낱말 -->
+    <div
+      id="writingTargetWords"
+      style="
+        display:flex;
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-bottom:22px;
+      "
+    >
+    </div>
+
+
+    <!-- 글쓰기 질문 -->
+    <div
+      id="writingPrompt"
+      style="
+        padding:22px;
+        border-radius:18px;
+        background:#edf5f0;
+        color:#2d4437;
+        font-size:18px;
+        font-weight:800;
+        line-height:1.75;
+        margin-bottom:20px;
+      "
+    >
+    </div>
+
+
+    <!-- 입력 -->
+    <textarea
+      id="writingInput"
+      placeholder="여기에 내 생각을 적어 보세요."
+      oninput="updateWritingCount()"
+      style="
+        width:100%;
+        min-height:180px;
+        padding:18px;
+        border:2px solid #dfe7e2;
+        border-radius:16px;
+        background:#ffffff;
+        color:#26362e;
+        font-family:inherit;
+        font-size:17px;
+        line-height:1.7;
+        resize:vertical;
+        outline:none;
+      "
+    ></textarea>
+
+
+    <!-- 글자 수 -->
+    <div
+      id="writingCount"
+      style="
+        margin-top:8px;
+        text-align:right;
+        color:#7d8b83;
+        font-size:13px;
+      "
+    >
+      0 / 150자
+    </div>
+
+
+    <!-- 안내 -->
+    <div
+      id="writingGuide"
+      style="
+        margin-top:16px;
+        padding:15px 17px;
+        border-radius:14px;
+        background:#fff6e8;
+        color:#76562e;
+        font-size:14px;
+        line-height:1.6;
+      "
+    >
+      💡 자신의 경험이나 생각을 자연스럽게 적어 보세요.
+    </div>
+
+
+    <button
+      id="writingSubmitBtn"
+      type="button"
+      onclick="submitWritingForTest()"
+      style="
+        margin-top:22px;
+        width:100%;
+        min-height:58px;
+        border:none;
+        border-radius:16px;
+        background:#4c7f63;
+        color:white;
+        font-size:18px;
+        font-weight:900;
+        cursor:pointer;
+      "
+    >
+      글쓰기 확인하기 →
+    </button>
+
+
+    <button
+      type="button"
+      onclick="backToQuestions()"
+      style="
+        margin-top:12px;
+        width:100%;
+        min-height:48px;
+        border:none;
+        background:transparent;
+        color:#809088;
+        font-size:14px;
+        cursor:pointer;
+      "
+    >
+      문제 다시 보기
+    </button>
+
+  </div>
+
+</section>
+    
     
     
   </main>
@@ -1950,18 +2190,7 @@ function nextQuestion() {
 
   }
 
-
-  /*
-   * 6문제 완료
-   *
-   * 아직 표현 화면은
-   * 다음 단계에서 연결한다.
-   */
-
-  alert(
-    '6문제를 모두 풀었어요! 🎉\n\n' +
-    '다음 단계에서 표현 활동을 연결할 거예요.'
-  );
+  showWritingScreen();
 
 }
 
@@ -1989,7 +2218,268 @@ function backToReading() {
   );
 
 }
-    
+
+function showWritingScreen() {
+
+  const writing =
+    learningData.writing;
+
+
+  document
+    .getElementById(
+      'questionScreen'
+    )
+    .style.display =
+      'none';
+
+
+  document
+    .getElementById(
+      'writingScreen'
+    )
+    .style.display =
+      'block';
+
+
+  document
+    .getElementById(
+      'writingPrompt'
+    )
+    .textContent =
+      writing.prompt;
+
+
+  renderWritingTargetWords();
+
+
+  const input =
+    document.getElementById(
+      'writingInput'
+    );
+
+
+  input.value =
+    '';
+
+
+  input.maxLength =
+    Number(
+      writing.maxLength || 150
+    );
+
+
+  updateWritingCount();
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}
+
+
+function renderWritingTargetWords() {
+
+  const writing =
+    learningData.writing;
+
+
+  const container =
+    document.getElementById(
+      'writingTargetWords'
+    );
+
+
+  container.innerHTML =
+    '';
+
+
+  const targetIds =
+    writing.targetWordIds || [];
+
+
+  targetIds.forEach(
+    function(wordId) {
+
+      const wordData =
+        learningData.words.find(
+          function(word) {
+
+            return (
+              word.wordId ===
+              wordId
+            );
+
+          }
+        );
+
+
+      if (!wordData) {
+        return;
+      }
+
+
+      const badge =
+        document.createElement(
+          'div'
+        );
+
+
+      badge.textContent =
+        '🌱 ' + wordData.word;
+
+
+      badge.style.cssText = `
+        padding:8px 14px;
+        border-radius:999px;
+        background:#e4f1e8;
+        color:#356047;
+        font-size:15px;
+        font-weight:900;
+      `;
+
+
+      container.appendChild(
+        badge
+      );
+
+    }
+  );
+
+}    
+
+
+function updateWritingCount() {
+
+  const input =
+    document.getElementById(
+      'writingInput'
+    );
+
+
+  const writing =
+    learningData.writing;
+
+
+  const maxLength =
+    Number(
+      writing.maxLength || 150
+    );
+
+
+  document
+    .getElementById(
+      'writingCount'
+    )
+    .textContent =
+      input.value.length +
+      ' / ' +
+      maxLength +
+      '자';
+
+}    
+
+function submitWritingForTest() {
+
+  const writing =
+    learningData.writing;
+
+
+  const input =
+    document.getElementById(
+      'writingInput'
+    );
+
+
+  const text =
+    input.value.trim();
+
+
+  const minLength =
+    Number(
+      writing.minLength || 10
+    );
+
+
+  const maxLength =
+    Number(
+      writing.maxLength || 150
+    );
+
+
+  if (
+    text.length <
+    minLength
+  ) {
+
+    alert(
+      '조금만 더 적어 볼까요?\n\n' +
+      '최소 ' +
+      minLength +
+      '자 이상 적어 주세요.'
+    );
+
+    input.focus();
+
+    return;
+
+  }
+
+
+  if (
+    text.length >
+    maxLength
+  ) {
+
+    alert(
+      maxLength +
+      '자 안으로 적어 주세요.'
+    );
+
+    input.focus();
+
+    return;
+
+  }
+
+
+  alert(
+    '표현 활동 화면까지 정상적으로 연결됐어요! 🎉\n\n' +
+    '다음 단계에서 이 글을 Gemini에게 보내서\n' +
+    'AI 피드백을 받도록 연결할 거예요.'
+  );
+
+}    
+
+
+function backToQuestions() {
+
+  document
+    .getElementById(
+      'writingScreen'
+    )
+    .style.display =
+      'none';
+
+
+  document
+    .getElementById(
+      'questionScreen'
+    )
+    .style.display =
+      'block';
+
+
+  renderQuestion();
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}    
 
     /*
      * service worker 등록
