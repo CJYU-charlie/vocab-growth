@@ -307,8 +307,17 @@
       .getElementById('startLearningBtn')
       .addEventListener(
         'click',
-        async function() {
+        async function(event) {
+        async function(event) {
 
+          event.preventDefault();
+          event.stopPropagation();
+
+          alert(
+            '현재 페이지 주소:\n' +
+            window.location.href
+          );
+          
           const button =
             document.getElementById(
               'startLearningBtn'
