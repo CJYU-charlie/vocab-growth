@@ -130,6 +130,7 @@
 
       padding: 17px 20px;
 
+      border: none;
       border-radius: 16px;
 
       background: #4c7f63;
@@ -139,6 +140,8 @@
 
       font-size: 18px;
       font-weight: 900;
+
+      cursor: pointer;
     }
 
     .small {
@@ -174,12 +177,13 @@
         이야기 속에서 뜻을 찾아볼까요?
       </p>
 
-      <a
-        class="start-button"
-        href="https://script.google.com/macros/s/AKfycbwV4WTSh0cGwUc9DYSajDK7YKlJBVI08UhWV95ZJaNaB_72TVdXxgbXTbjPV120oeUz/exec"
-      >
-        오늘 학습 시작하기
-      </a>
+     <button
+      id="startLearningBtn"
+      class="start-button"
+      type="button"
+    >
+      오늘 학습 시작하기
+      </button>
 
       <button
         id="apiTestBtn"
@@ -216,10 +220,328 @@
 
     </div>
 
+  <section
+  id="wordScreen"
+  style="
+    display:none;
+    min-height:100vh;
+    padding:32px 20px;
+  "
+>
+  <div
+    style="
+      max-width:430px;
+      margin:0 auto;
+    "
+  >
+
+    <div
+      style="
+        text-align:center;
+        margin-bottom:26px;
+      "
+    >
+      <div
+        style="
+          font-size:15px;
+          color:#6f7d75;
+          margin-bottom:8px;
+        "
+      >
+        오늘의 낱말
+      </div>
+
+      <h2
+        style="
+          margin:0;
+          font-size:28px;
+          font-weight:900;
+        "
+      >
+        오늘 만날 어휘 5개
+      </h2>
+    </div>
+
+
+    <div
+      id="todayWords"
+      style="
+        display:grid;
+        gap:12px;
+      "
+    ></div>
+
+
+    <button
+      id="backHomeBtn"
+      type="button"
+      style="
+        margin-top:24px;
+        width:100%;
+        padding:15px;
+        border:none;
+        border-radius:14px;
+        background:#e4eee8;
+        color:#355b47;
+        font-size:16px;
+        font-weight:800;
+        cursor:pointer;
+      "
+    >
+      처음 화면으로
+    </button>
+
+  </div>
+</section>
+    
   </main>
 
 
   <script>
+
+    const APPS_SCRIPT_API_URL =
+      'https://script.google.com/macros/s/AKfycbwV4WTSh0cGwUc9DYSajDK7YKlJBVI08UhWV95ZJaNaB_72TVdXxgbXTbjPV120oeUz/exec';
+
+
+    document
+      .getElementById('startLearningBtn')
+      .addEventListener(
+        'click',
+        async function() {
+
+          const button =
+            document.getElementById(
+              'startLearningBtn'
+            );
+
+          button.disabled = true;
+
+          button.textContent =
+            '오늘 학습을 준비하고 있어요...';
+
+          try {
+
+            const response =
+              await fetch(
+                APPS_SCRIPT_API_URL +
+                '?api=today'
+              );
+
+            if (!response.ok) {
+              throw new Error(
+                'API 응답 오류'
+              );
+            }
+    
+            const data =
+              await response.json();
+    
+    
+            if (
+              !data.words ||
+              !Array.isArray(data.words)
+            ) {
+              throw new Error(
+                '어휘 데이터를 찾을 수 없습니다.'
+              );
+            }
+    
+    
+            renderTodayWords(
+              data.words
+            );
+    
+    
+            document
+              .querySelector('.wrap')
+              .style.display =
+                'none';
+    
+    
+            document
+              .getElementById(
+                'wordScreen'
+              )
+              .style.display =
+                'block';
+    
+    
+            window.scrollTo(
+              0,
+              0
+            );
+    
+          }
+    
+          catch (error) {
+    
+            alert(
+              '오늘 학습을 불러오지 못했어요.\n\n' +
+              error.message
+            );
+    
+          }
+    
+          finally {
+    
+            button.disabled = false;
+    
+            button.textContent =
+              '오늘 학습 시작하기';
+    
+          }
+    
+        }
+      );
+    
+    
+    
+      function renderTodayWords(
+      words
+    ) {
+    
+      const container =
+        document.getElementById(
+          'todayWords'
+        );
+    
+    
+      container.innerHTML =
+        '';
+    
+    
+      words.forEach(
+        function(word, index) {
+    
+          const card =
+            document.createElement(
+              'div'
+            );
+    
+    
+          card.style.cssText = `
+            padding:20px;
+            border-radius:18px;
+            background:#ffffff;
+            box-shadow:
+              0 5px 18px
+              rgba(40,70,54,0.08);
+          `;
+    
+    
+          card.innerHTML = `
+            <div
+              style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:12px;
+              "
+            >
+    
+              <div>
+    
+                <div
+                  style="
+                    margin-bottom:5px;
+                    color:#839087;
+                    font-size:13px;
+                    font-weight:700;
+                  "
+                >
+                  ${index + 1}번째 낱말
+                </div>
+    
+                <div
+                  style="
+                    font-size:25px;
+                    font-weight:900;
+                    color:#26362e;
+                  "
+                >
+                  ${escapeHtml(word.word)}
+                </div>
+    
+              </div>
+    
+    
+              <div
+                style="
+                  padding:7px 12px;
+                  border-radius:999px;
+                  background:#edf5f0;
+                  color:#466b57;
+                  font-size:14px;
+                  font-weight:800;
+                "
+              >
+                ${escapeHtml(word.subject)}
+              </div>
+    
+            </div>
+          `;
+    
+    
+          container.appendChild(
+            card
+          );
+    
+        }
+      );
+    
+    }
+    
+    
+    
+    function escapeHtml(
+      text
+    ) {
+    
+      return String(text)
+    
+        .replace(/&/g, '&amp;')
+    
+        .replace(/</g, '&lt;')
+    
+        .replace(/>/g, '&gt;')
+    
+        .replace(/"/g, '&quot;')
+    
+        .replace(/'/g, '&#039;');
+    
+    }
+    
+    
+    
+    document
+      .getElementById('backHomeBtn')
+      .addEventListener(
+        'click',
+        function() {
+    
+          document
+            .getElementById(
+              'wordScreen'
+            )
+            .style.display =
+              'none';
+    
+    
+          document
+            .querySelector(
+              '.wrap'
+            )
+            .style.display =
+              'flex';
+    
+    
+          window.scrollTo(
+            0,
+            0
+          );
+    
+        }
+      );
 
     /*
      * service worker 등록
