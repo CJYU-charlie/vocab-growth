@@ -1592,21 +1592,46 @@ async function checkTodayCompletionFromApi() {
               );
             }
     
+    learningData = data;
+
+    currentWordIndex = 0;
     
-            learningData = data;
-
-            currentWordIndex = 0;
-
-            selfChecks = [];
-
-            initialWritingText = '';
-            finalWritingText = '';
-            initialWritingEvaluation = null;
-            finalWritingEvaluation = null;
-            writingRewriteCount = 0;
-
-            renderCurrentWord();
+    selfChecks = [];
     
+    currentQuestionIndex = 0;
+    
+    selectedChoice = null;
+    
+    questionState = 'waiting';
+    
+    questionAttemptCount = 0;
+    
+    answers = [];
+    
+    currentWritingIndex = 0;
+    
+    writingResults = [
+      {
+        writingId: 'w1',
+        targetWordIds: [],
+        initialText: '',
+        finalText: '',
+        initialEvaluation: null,
+        finalEvaluation: null,
+        rewriteCount: 0
+      },
+      {
+        writingId: 'w2',
+        targetWordIds: [],
+        initialText: '',
+        finalText: '',
+        initialEvaluation: null,
+        finalEvaluation: null,
+        rewriteCount: 0
+      }
+    ];
+    
+    renderCurrentWord();
     
             document
               .querySelector('.card')
