@@ -997,6 +997,7 @@
     >
 
       <div
+        id="writingProgressText"
         style="
           font-size:14px;
           color:#738178;
@@ -1004,7 +1005,7 @@
           margin-bottom:8px;
         "
       >
-        오늘의 표현
+        오늘의 표현 1 / 2
       </div>
 
       <h2
@@ -1083,7 +1084,7 @@
         font-size:13px;
       "
     >
-      0 / 150자
+      0 / 200자
     </div>
 
 
@@ -1351,15 +1352,57 @@
 
     let answers = [];
 
-    let initialWritingText = '';
-
-    let finalWritingText = '';
-
-    let initialWritingEvaluation = null;
-
-    let finalWritingEvaluation = null;
-
-    let writingRewriteCount = 0;
+    let currentWritingIndex =
+      0;
+    
+    
+    let writingResults = [
+      {
+        writingId:
+          'w1',
+    
+        targetWordIds:
+          [],
+    
+        initialText:
+          '',
+    
+        finalText:
+          '',
+    
+        initialEvaluation:
+          null,
+    
+        finalEvaluation:
+          null,
+    
+        rewriteCount:
+          0
+      },
+    
+      {
+        writingId:
+          'w2',
+    
+        targetWordIds:
+          [],
+    
+        initialText:
+          '',
+    
+        finalText:
+          '',
+    
+        initialEvaluation:
+          null,
+    
+        finalEvaluation:
+          null,
+    
+        rewriteCount:
+          0
+      }
+    ];
     let todayCompleted = false;
 
 async function checkTodayCompletionFromApi() {
@@ -2556,8 +2599,37 @@ function backToReading() {
 
 function showWritingScreen() {
 
-  const writing =
-    learningData.writing;
+  /*
+   * 첫 번째 표현 활동부터 시작
+   */
+  currentWritingIndex =
+    0;
+
+
+  /*
+   * 두 글쓰기 결과의
+   * 목표어휘 정보 준비
+   */
+  learningData.writings.forEach(
+    function(writing, index) {
+
+      if (
+        writingResults[index]
+      ) {
+
+        writingResults[index]
+          .writingId =
+            writing.id;
+
+
+        writingResults[index]
+          .targetWordIds =
+            writing.targetWordIds.slice();
+
+      }
+
+    }
+  );
 
 
   document
@@ -2576,6 +2648,55 @@ function showWritingScreen() {
       'block';
 
 
+  /*
+   * 첫 번째 표현 활동 표시
+   */
+  loadCurrentWritingActivity();
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}
+
+function loadCurrentWritingActivity() {
+
+  const writing =
+    learningData.writings[
+      currentWritingIndex
+    ];
+
+
+  if (!writing) {
+
+    alert(
+      '글쓰기 활동을 불러오지 못했어요.'
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * 현재 몇 번째 표현인지 표시
+   */
+  document
+    .getElementById(
+      'writingProgressText'
+    )
+    .textContent =
+      '오늘의 표현 ' +
+      (currentWritingIndex + 1) +
+      ' / ' +
+      learningData.writings.length;
+
+
+  /*
+   * 글쓰기 질문
+   */
   document
     .getElementById(
       'writingPrompt'
@@ -2584,9 +2705,15 @@ function showWritingScreen() {
       writing.prompt;
 
 
+  /*
+   * 목표어휘 표시
+   */
   renderWritingTargetWords();
 
 
+  /*
+   * 입력창 초기화
+   */
   const input =
     document.getElementById(
       'writingInput'
@@ -2597,12 +2724,82 @@ function showWritingScreen() {
     '';
 
 
+  input.disabled =
+    false;
+
+
   input.maxLength =
     Number(
-      writing.maxLength || 150
+      writing.maxLength || 200
     );
 
 
+  /*
+   * 이전 AI 평가와
+   * 선택 버튼 숨기기
+   */
+  document
+    .getElementById(
+      'writingEvaluationBox'
+    )
+    .style.display =
+      'none';
+
+
+  document
+    .getElementById(
+      'writingNextActions'
+    )
+    .style.display =
+      'none';
+
+
+  /*
+   * 제출 버튼 다시 표시
+   */
+  const submitButton =
+    document.getElementById(
+      'writingSubmitBtn'
+    );
+
+
+  submitButton.style.display =
+    'block';
+
+
+  submitButton.disabled =
+    false;
+
+
+  submitButton.textContent =
+    '글쓰기 확인하기 →';
+
+  const finishButton =
+    document.getElementById(
+      'finishWritingBtn'
+    );
+  
+  
+  if (
+    currentWritingIndex <
+    learningData.writings.length - 1
+  ) {
+  
+    finishButton.textContent =
+      '다음 표현으로 →';
+  
+  } else {
+  
+    finishButton.textContent =
+      '이대로 마치기 →';
+  
+  }
+  
+
+
+  /*
+   * 글자 수 표시 갱신
+   */
   updateWritingCount();
 
 
@@ -2612,12 +2809,14 @@ function showWritingScreen() {
   );
 
 }
-
+    
 
 function renderWritingTargetWords() {
 
   const writing =
-    learningData.writing;
+    learningData.writings[
+      currentWritingIndex
+    ];
 
 
   const container =
@@ -2628,6 +2827,11 @@ function renderWritingTargetWords() {
 
   container.innerHTML =
     '';
+
+
+  if (!writing) {
+    return;
+  }
 
 
   const targetIds =
@@ -2682,7 +2886,8 @@ function renderWritingTargetWords() {
     }
   );
 
-}    
+}
+
 
 
 function updateWritingCount() {
@@ -2694,12 +2899,29 @@ function updateWritingCount() {
 
 
   const writing =
-    learningData.writing;
+    learningData.writings[
+      currentWritingIndex
+    ];
+
+
+  if (!writing) {
+
+    document
+      .getElementById(
+        'writingCount'
+      )
+      .textContent =
+        input.value.length +
+        '자';
+
+    return;
+
+  }
 
 
   const maxLength =
     Number(
-      writing.maxLength || 150
+      writing.maxLength || 200
     );
 
 
@@ -2713,12 +2935,34 @@ function updateWritingCount() {
       maxLength +
       '자';
 
-}    
+}  
 
 async function submitWritingForTest() {
 
   const writing =
-    learningData.writing;
+    learningData.writings[
+      currentWritingIndex
+    ];
+
+
+  const writingResult =
+    writingResults[
+      currentWritingIndex
+    ];
+
+
+  if (
+    !writing ||
+    !writingResult
+  ) {
+
+    alert(
+      '현재 글쓰기 활동 정보를 찾을 수 없어요.'
+    );
+
+    return;
+
+  }
 
 
   const input =
@@ -2739,7 +2983,7 @@ async function submitWritingForTest() {
 
   const maxLength =
     Number(
-      writing.maxLength || 150
+      writing.maxLength || 200
     );
 
 
@@ -2812,6 +3056,9 @@ async function submitWritingForTest() {
 
           body:
             JSON.stringify({
+              writingId:
+                writing.id,
+
               text:
                 text,
 
@@ -2838,42 +3085,50 @@ async function submitWritingForTest() {
     }
 
 
-/*
- * 첫 평가인지
- * 수정 후 평가인지 구분해서 보관
- */
-if (
-  initialWritingEvaluation === null
-) {
+    /*
+     * 이 활동의 첫 평가인지
+     * 다시쓰기 후 평가인지 구분
+     */
+    if (
+      writingResult
+        .initialEvaluation ===
+      null
+    ) {
 
-  initialWritingText =
-    text;
+      writingResult
+        .initialText =
+          text;
 
-  initialWritingEvaluation =
-    result.evaluation;
+      writingResult
+        .initialEvaluation =
+          result.evaluation;
 
-} else {
+    } else {
 
-  finalWritingText =
-    text;
+      writingResult
+        .finalText =
+          text;
 
-  finalWritingEvaluation =
-    result.evaluation;
+      writingResult
+        .finalEvaluation =
+          result.evaluation;
 
-}    
-    
+    }
+
+
     showWritingEvaluation(
       result.evaluation
     );
 
-document
-  .getElementById(
-    'writingSubmitBtn'
-  )
-  .style.display =
-    'none';
 
-    
+    document
+      .getElementById(
+        'writingSubmitBtn'
+      )
+      .style.display =
+        'none';
+
+
   } catch (error) {
 
     alert(
@@ -3177,7 +3432,45 @@ if (
 }
 
 function rewriteWriting() {
-  writingRewriteCount++;  
+
+  const writingResult =
+    writingResults[
+      currentWritingIndex
+    ];
+
+
+  if (!writingResult) {
+
+    alert(
+      '현재 글쓰기 결과를 찾을 수 없어요.'
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * 다시쓰기는
+   * 각 활동당 한 번만 허용
+   */
+  if (
+    writingResult
+      .rewriteCount >= 1
+  ) {
+
+    alert(
+      '다시 쓰기는 한 번만 할 수 있어요.'
+    );
+
+    return;
+
+  }
+
+
+  writingResult
+    .rewriteCount++;
+
 
   /*
    * AI 피드백 숨기기
@@ -3213,12 +3506,26 @@ function rewriteWriting() {
   input.disabled =
     false;
 
+
+  /*
+   * 첫 글은 지우지 않는다.
+   * 아이가 받은 피드백을 보고
+   * 기존 글을 수정할 수 있게 유지한다.
+   */
+  input.value =
+    writingResult.initialText;
+
+
   document
-  .getElementById(
-    'writingSubmitBtn'
-  )
-  .style.display =
-    'block';
+    .getElementById(
+      'writingSubmitBtn'
+    )
+    .style.display =
+      'block';
+
+
+  updateWritingCount();
+
 
   input.focus();
 
@@ -3255,8 +3562,6 @@ function buildLearningResult() {
 
   /*
    * 최종적으로 스스로 맞힌 문제 수
-   *
-   * 정답 공개 문제는 포함하지 않음
    */
   const finalCorrectCount =
     answers.filter(
@@ -3271,7 +3576,8 @@ function buildLearningResult() {
 
 
   /*
-   * 자기평가를 wordId 기준으로 변환
+   * 자기평가를
+   * wordId 기준으로 변환
    */
   const selfEvaluation = {};
 
@@ -3288,27 +3594,66 @@ function buildLearningResult() {
 
 
   /*
-   * 수정하지 않았다면
-   * 최초 글을 최종 글로 사용
+   * 두 글쓰기 활동 결과 정리
    */
-  const resolvedFinalText =
-    finalWritingText ||
-    initialWritingText ||
-    document
-      .getElementById(
-        'writingInput'
-      )
-      .value
-      .trim();
+  const resolvedWritings =
+    writingResults.map(
+      function(result, index) {
+
+        const writing =
+          learningData.writings[
+            index
+          ];
 
 
-  /*
-   * 최종 평가는
-   * 수정 후 평가가 있으면 그것을 사용
-   */
-  const resolvedEvaluation =
-    finalWritingEvaluation ||
-    initialWritingEvaluation;
+        /*
+         * 수정하지 않은 경우
+         * 최초 글을 최종 글로 사용
+         */
+        const resolvedFinalText =
+          result.finalText ||
+          result.initialText;
+
+
+        /*
+         * 수정 후 평가가 있으면
+         * 그것을 최종 평가로 사용
+         */
+        const resolvedEvaluation =
+          result.finalEvaluation ||
+          result.initialEvaluation;
+
+
+        return {
+
+          id:
+            writing.id,
+
+          targetWordIds:
+            writing.targetWordIds,
+
+          originalText:
+            result.initialText,
+
+          finalText:
+            resolvedFinalText,
+
+          revised:
+            result.rewriteCount > 0,
+
+          rewriteCount:
+            result.rewriteCount,
+
+          initialEvaluation:
+            result.initialEvaluation,
+
+          finalEvaluation:
+            resolvedEvaluation
+
+        };
+
+      }
+    );
 
 
   return {
@@ -3364,32 +3709,10 @@ function buildLearningResult() {
 
 
     /*
-     * 글쓰기
+     * 글쓰기 2개
      */
-    writing: {
-
-      targetWordIds:
-        learningData.writing.targetWordIds,
-
-      originalText:
-        initialWritingText,
-
-      finalText:
-        resolvedFinalText,
-
-      revised:
-        writingRewriteCount > 0,
-
-      rewriteCount:
-        writingRewriteCount,
-
-      initialEvaluation:
-        initialWritingEvaluation,
-
-      finalEvaluation:
-        resolvedEvaluation
-
-    }
+    writings:
+      resolvedWritings
 
   };
 
@@ -3559,10 +3882,47 @@ function returnToHomeAfterComplete() {
 }
 
 
-    
-      
 async function finishWritingForTest() {
 
+  /*
+   * 첫 번째 표현 활동이라면
+   * 저장하지 않고 두 번째 활동으로 이동
+   */
+  if (
+    currentWritingIndex <
+    learningData.writings.length - 1
+  ) {
+
+    currentWritingIndex++;
+
+
+    /*
+     * 다음 표현 활동 화면 표시
+     */
+    loadCurrentWritingActivity();
+
+
+    /*
+     * 버튼 문구도
+     * 다음 활동에 맞게 초기화
+     */
+    document
+      .getElementById(
+        'finishWritingBtn'
+      )
+      .textContent =
+        '이대로 마치기 →';
+
+
+    return;
+
+  }
+
+
+  /*
+   * 두 번째 표현까지 끝났다면
+   * 전체 학습 결과 저장
+   */
   const learningResult =
     buildLearningResult();
 
@@ -3655,7 +4015,9 @@ async function finishWritingForTest() {
 
   }
 
-}
+}    
+      
+
     
 
     /*
