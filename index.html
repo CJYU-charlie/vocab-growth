@@ -1302,6 +1302,25 @@
       다음 학습에서 다시 만날 수도 있어요.
     </div>
 
+    <button
+      type="button"
+      onclick="returnToHomeAfterComplete()"
+      style="
+        margin-top:18px;
+        width:100%;
+        min-height:56px;
+        border:2px solid #4c7f63;
+        border-radius:16px;
+        background:#ffffff;
+        color:#3e6d52;
+        font-size:17px;
+        font-weight:900;
+        cursor:pointer;
+      "
+    >
+      처음 화면으로
+    </button>
+    
   </div>
 
 </section>
@@ -3506,6 +3525,39 @@ function showCompleteScreen(
   );
 
 }
+
+function returnToHomeAfterComplete() {
+
+  document
+    .getElementById(
+      'completeScreen'
+    )
+    .style.display =
+      'none';
+
+
+  document
+    .querySelector(
+      '.card'
+    )
+    .style.display =
+      'block';
+
+
+  /*
+   * 완료 여부를 서버에서 다시 확인해서
+   * 첫 화면을 완료 상태로 만든다.
+   */
+  checkTodayCompletionFromApi();
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}
+
 
     
       
